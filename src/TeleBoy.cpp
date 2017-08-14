@@ -108,21 +108,22 @@ TeleBoy::~TeleBoy() {
 
 bool TeleBoy::Login(string u, string p) {
   HttpGet(tbUrl + "/login");
-  string result = HttpPost(tbUrl + "/login_check", "login=" + u +"&password=" + p + "&keep_login=1");
+  string result = HttpPost(tbUrl + "/login_check", "login=" + Utils::UrlEncode(u) +"&password=" + Utils::UrlEncode(p) + "&keep_login=1");
   bool loginOk = result.find("Anmeldung war nicht erfolgreich") == std::string::npos &&
          result.find("Falsche Eingaben") == std::string::npos;
   if (!loginOk) {
+	XBMC->Log(LOG_ERROR, "Login data invalid.");
     return false;
   }
-  int pos = result.find("userSettings =");
+  int pos = result.find("setId(");
   if (pos == std::string::npos) {
+	XBMC->Log(LOG_ERROR, "No user settings found.");
     return false;
   }
-  int endPos = result.find("};", pos);
-  string settings = result.substr(pos, endPos - pos);
-  pos = settings.find(" id:") + 5;
-  endPos = settings.find(",", pos);
-  userId = settings.substr(pos, endPos-pos);
+  pos += 6;
+  int endPos = result.find(")", pos);
+  userId = result.substr(pos, endPos-pos);
+  XBMC->Log(LOG_NOTICE, "Get userId: %s.", userId.c_str());
   return true;
 }
 

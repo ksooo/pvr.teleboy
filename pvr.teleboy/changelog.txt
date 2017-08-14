@@ -1,3 +1,5 @@
+v17.0.6
+ - Port login fix from master
 v17.0.4
  - Add some information to recordings and epg
 v17.0.3
